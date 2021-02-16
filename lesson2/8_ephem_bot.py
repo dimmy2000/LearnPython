@@ -14,6 +14,12 @@
 """
 import logging
 
+import ephem
+
+import random
+
+from datetime import datetime
+
 from settings import token
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
@@ -31,6 +37,11 @@ PROXY = {
     }
 }
 
+planets = [
+            'Mercury', 'Venus', 'Mars', 'Jupiter',
+            'Saturn', 'Uranus', 'Neptune', 'Pluto'
+            ]
+
 
 def greet_user(update, context):
     text = 'Вызван /start'
@@ -44,11 +55,58 @@ def talk_to_me(update, context):
     update.message.reply_text(user_text)
 
 
+def get_constellation(update, context):
+    get_planet = update.message.text.split()
+    if len(get_planet) > 1:
+        planet = get_planet[1].capitalize()
+    else:
+        planet = planets[random.randint(0, 7)]
+
+    today = datetime.today().strftime(r'%Y/%m/%d')
+
+    if planet == 'Mercury':
+        mars = ephem.Mercury(today)
+        constellation = ephem.constellation(mars)
+
+    elif planet == 'Venus':
+        mars = ephem.Venus(today)
+        constellation = ephem.constellation(mars)
+
+    elif planet == 'Mars':
+        mars = ephem.Mars(today)
+        constellation = ephem.constellation(mars)
+
+    elif planet == 'Jupiter':
+        mars = ephem.Jupiter(today)
+        constellation = ephem.constellation(mars)
+
+    elif planet == 'Saturn':
+        mars = ephem.Saturn(today)
+        constellation = ephem.constellation(mars)
+
+    elif planet == 'Uranus':
+        mars = ephem.Uranus(today)
+        constellation = ephem.constellation(mars)
+
+    elif planet == 'Neptune':
+        mars = ephem.Neptune(today)
+        constellation = ephem.constellation(mars)
+
+    elif planet == 'Pluto':
+        mars = ephem.Pluto(today)
+        constellation = ephem.constellation(mars)
+
+    print(constellation[1])
+    update.message.reply_text(f'Планета {planet} сегодня находится в '
+                              f'созвездии {constellation[1]}')
+
+
 def main():
     mybot = Updater(token, request_kwargs=PROXY, use_context=True)
 
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler("start", greet_user))
+    dp.add_handler(CommandHandler("planet", get_constellation))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
 
     mybot.start_polling()
