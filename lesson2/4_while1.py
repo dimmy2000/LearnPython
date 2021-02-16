@@ -15,9 +15,9 @@ def hello_user():
     Замените pass на ваш код
     """
     while True:
-      ask = str(input('Как дела? '))
-      if ask == 'Хорошо':
-        break
+        ask = str(input('Как дела? '))
+        if ask == 'Хорошо':
+            break
 
 
 if __name__ == "__main__":
