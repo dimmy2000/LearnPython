@@ -1,5 +1,6 @@
 # IDE files
 .vscode/
+.idea/
 
 # Private information
 settings.py
