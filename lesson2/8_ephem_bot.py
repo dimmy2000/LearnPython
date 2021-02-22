@@ -64,37 +64,10 @@ def get_constellation(update, context):
 
     today = datetime.today().strftime(r'%Y/%m/%d')
 
-    if planet == 'Mercury':
-        mars = ephem.Mercury(today)
-        constellation = ephem.constellation(mars)
+    if planet in planets:
+        some_planet = getattr(ephem, planet)(today)
+        constellation = ephem.constellation(some_planet)
 
-    elif planet == 'Venus':
-        mars = ephem.Venus(today)
-        constellation = ephem.constellation(mars)
-
-    elif planet == 'Mars':
-        mars = ephem.Mars(today)
-        constellation = ephem.constellation(mars)
-
-    elif planet == 'Jupiter':
-        mars = ephem.Jupiter(today)
-        constellation = ephem.constellation(mars)
-
-    elif planet == 'Saturn':
-        mars = ephem.Saturn(today)
-        constellation = ephem.constellation(mars)
-
-    elif planet == 'Uranus':
-        mars = ephem.Uranus(today)
-        constellation = ephem.constellation(mars)
-
-    elif planet == 'Neptune':
-        mars = ephem.Neptune(today)
-        constellation = ephem.constellation(mars)
-
-    elif planet == 'Pluto':
-        mars = ephem.Pluto(today)
-        constellation = ephem.constellation(mars)
 
     print(constellation[1])
     update.message.reply_text(f'Планета {planet} сегодня находится в '
