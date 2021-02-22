@@ -13,21 +13,16 @@
 
 """
 import logging
-
-import ephem
-
 import random
-
 from datetime import datetime
 
+import ephem
 from settings import token
-
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
                     filename='bot.log')
-
 
 PROXY = {
     'proxy_url': 'socks5://t1.learn.python.ru:1080',
@@ -38,9 +33,9 @@ PROXY = {
 }
 
 planets = [
-            'Mercury', 'Venus', 'Mars', 'Jupiter',
-            'Saturn', 'Uranus', 'Neptune', 'Pluto'
-            ]
+    'Mercury', 'Venus', 'Mars', 'Jupiter',
+    'Saturn', 'Uranus', 'Neptune', 'Pluto'
+]
 
 
 def greet_user(update, context):
@@ -67,11 +62,12 @@ def get_constellation(update, context):
     if planet in planets:
         some_planet = getattr(ephem, planet)(today)
         constellation = ephem.constellation(some_planet)
-
-
-    print(constellation[1])
-    update.message.reply_text(f'Планета {planet} сегодня находится в '
-                              f'созвездии {constellation[1]}')
+        print(constellation[1])
+        update.message.reply_text(f'Планета {planet} сегодня находится в '
+                                  f'созвездии {constellation[1]}')
+    else:
+        update.message.reply_text('Не могу найти планету. Проверьте наличие '
+                                  'опечаток в названии или планеты на небе')
 
 
 def main():
