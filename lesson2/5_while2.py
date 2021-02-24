@@ -32,10 +32,14 @@ def ask_user(answers_dict):
     """
     Замените pass на ваш код
     """
-    print("Привет!\nВведи свой вопрос:")
-    question = input().capitalize()
-    if question in questions_and_answers.keys():
-        print(questions_and_answers[question])
+    print("Привет!")
+    while True:
+        print("Введи свой вопрос:")
+        question = input().capitalize()
+        if question in questions_and_answers.keys():
+            print(questions_and_answers[question])
+        else:
+            break
 
 
 if __name__ == "__main__":
