@@ -32,6 +32,9 @@ def main():
 
 def greet_user(update, context):
     print('Вызван /start')
+    chat_id = update.effective_chat.id
+    file_id = "AgACAgIAAxkBAAEIYOJgOBL3LbcH5fVOAAG0BN36mKvs-2sAAmGyMRuOBcBJMVNMndUQ2S1U9hibLgADAQADAgADbQADoacCAAEeBA"
+    context.bot.send_photo(chat_id=chat_id, photo=file_id)
     update.message.reply_text('Привет, пользователь! Ты вызвал команду /start\n'
                               f'Ну и {update.message.from_user.first_name} же ты. Восхитительно!')
 
