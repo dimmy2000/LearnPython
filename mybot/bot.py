@@ -1,9 +1,8 @@
+from glob import glob
 import logging
-from random import randint
-
-from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
-
+from random import randint, choice
 from settings import API_KEY, PROXY_URL, PROXY_USERNAME, PROXY_PASSWORD
+from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
 
 logging.basicConfig(filename='bot.log', level=logging.INFO)
 
@@ -20,6 +19,7 @@ def main():
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler("start", greet_user))
     dp.add_handler(CommandHandler("guess", guess_number))
+    dp.add_handler(CommandHandler("cat", send_cat_picture))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
 
     logging.info("Бот стартовал")
@@ -32,7 +32,8 @@ def main():
 
 def greet_user(update, context):
     print('Вызван /start')
-    update.message.reply_text('Привет, пользователь! Ты вызвал команду /start')
+    update.message.reply_text('Привет, пользователь! Ты вызвал команду /start\n'
+                              f'Ну и {update.message.from_user.first_name} же ты. Восхитительно!')
 
 
 def talk_to_me(update, context):
@@ -63,6 +64,13 @@ def play_random_numbers(user_number):
     else:
         message = f"Ваше число {user_number}, мое {bot_number}. Вы проиграли."
     return message
+
+
+def send_cat_picture(update, context):
+    cat_photos_list = glob('images/cat*.jp*g')
+    cat_pic_filename = choice(cat_photos_list)
+    chat_id = update.effective_chat.id
+    context.bot.send_photo(chat_id=chat_id, photo=open(cat_pic_filename, 'rb'))
 
 
 main()
