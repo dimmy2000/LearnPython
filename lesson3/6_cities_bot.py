@@ -15,14 +15,6 @@ PROXY = {'proxy_url': PROXY_URL,
          'urllib3_proxy_kwargs': {'username': PROXY_USERNAME,
                                   'password': PROXY_PASSWORD}}
 
-# загрузка списка городов
-with open('cities.txt', 'r', encoding='utf-8') as cities:
-    cities_list = cities.read().split('\n')
-    print(len(cities_list))
-
-start_letter = 0
-end_letter = 0
-
 
 def greet_user(update, context):
     text = 'Вызван /start'
@@ -65,31 +57,33 @@ def cities_game(update, context):
     '''
 
 
-    # старт игры
-    # ввести город игрока
-    get_city = update.message.text.split()
-    if len(get_city) > 1:
-        user_city = ' '.join(get_city[1:]).title()
+    if context.args:
+        # старт игры
+        context.user_data['cities'] = playing_intensifies(context.user_data)
+        cities = context.user_data['cities']
+        print(context.args)
+        # ввести город игрока
+        user_city = ' '.join(context.args).title()
         print(user_city)
-        if user_city in cities_list:
+        if user_city in cities:
             # удалить город из списка
-            user_city = cities_list.pop(cities_list.index(user_city))
-            print(len(cities_list))
+            cities.remove(user_city)
+            print(len(cities))
             # найти последнюю букву в названии города
-            end_letter = get_end_letter(user_city)
+            end_letter = get_letter(user_city)
             # если город начинающийся с "буквы" в списке городов
             # bot_city = [city for city in cities_list if city.lower().startswith(end_letter.lower())]
             bot_city = []
-            for city in cities_list:
+            for city in cities:
                 if city[0].upper() == end_letter.upper():
                     bot_city.append(city)
             bot_city = bot_city[0]
             print(bot_city)
             # удалить город из списка
-            cities_list.remove(bot_city)
-            print(len(cities_list))
+            cities.remove(bot_city)
+            print(len(cities))
             # город игрока должен начинаться с "буквы"
-            start_letter = get_end_letter(bot_city)
+            start_letter = get_letter(bot_city)
             # вывести сообщение
             update.message.reply_text(f'Вы ввели город: <b>{user_city}</b>.\nМне надо выбрать город, начинающийся '
                                       f'на букву <b><i>{end_letter.upper()}</i></b>.\nМой город: <b>{bot_city}</b>.\n'
@@ -105,7 +99,18 @@ def cities_game(update, context):
                                   'команды /cities')
 
 
-def get_end_letter(cityname):
+def playing_intensifies(user_data):
+    # создаем для конкретного пользователя игральные переменные
+    if 'cities' not in user_data:
+        # загрузка списка городов
+        with open('cities.txt', 'r', encoding='utf-8') as file:
+            cities = file.read().split('\n')
+            print(len(cities))
+        return cities
+    return user_data['cities']
+
+
+def get_letter(cityname):
     index = -1
     list_of_wrong_endings = ["ъ", "ы", "ь"]
     # если "буква" не "ъ, ы, ь"
@@ -115,7 +120,7 @@ def get_end_letter(cityname):
     else:
         # перейти к предыдущей букве
         cityname = cityname[:index]
-        return get_end_letter(cityname)
+        return get_letter(cityname)
 
 
 def main():
