@@ -1,10 +1,7 @@
+from cities import cities_list
 import logging
-from time import strftime, strptime
-
-import ephem
-from datetime import datetime
-from settings import API_KEY, PROXY_URL, PROXY_USERNAME, PROXY_PASSWORD
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from mybot.settings import API_KEY, PROXY_URL, PROXY_USERNAME, PROXY_PASSWORD
+from telegram.ext import Updater, CommandHandler
 
 logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
@@ -56,7 +53,6 @@ def cities_game(update, context):
             конец игры
     '''
 
-
     if context.args:
         # старт игры
         context.user_data['cities'] = playing_intensifies(context.user_data)
@@ -103,9 +99,8 @@ def playing_intensifies(user_data):
     # создаем для конкретного пользователя игральные переменные
     if 'cities' not in user_data:
         # загрузка списка городов
-        with open('cities.txt', 'r', encoding='utf-8') as file:
-            cities = file.read().split('\n')
-            print(len(cities))
+        cities = cities_list
+        print(len(cities))
         return cities
     return user_data['cities']
 
