@@ -14,64 +14,45 @@ PROXY = {'proxy_url': PROXY_URL,
 
 
 def greet_user(update, context):
-    text = 'Вызван /start'
-    print(text)
-    update.message.reply_text(text)
+    print('Вызван /start')
+    chat_id = update.effective_chat.id
+    file_id = "AgACAgIAAxkBAAEIYOJgOBL3LbcH5fVOAAG0BN36mKvs-2sAAmGyMRuOBcBJMVNMndUQ2S1U9hibLgADAQADAgADbQADoacCAAEeBA"
+    context.bot.send_photo(chat_id=chat_id, photo=file_id)
+    update.message.reply_text(f'Привет, пользователь! Ты вызвал команду /start\n'
+                              f'Ну и {update.message.from_user.first_name} же ты. Восхитительно!')
 
 
 def cities_game(update, context):
-    '''
-    игра в города
-
-    старт игры
-    загрузка списка городов
-    ввести город
-        если город в списке городов
-            найти последнюю букву в названии города
-            удалить город из списка
-            если "буква" не "ъ, ы, ь" иначе перейти к предыдущей букве
-                если город начинающийся с "буквы" в списке городов
-                    вывести название города
-                    удалить город из списка
-                    ввести город
-                    если город начинается с "буквы"
-                        если город в списке городов
-                            найти последнюю букву в названии города
-                            удалить город из списка
-                            если "буква" не "ъ, ы, ь" иначе перейти к предыдущей букве
-                            если город начинающийся с "буквы" в списке городов
-                                вывести название города
-                                удалить город из списка
-                                ввести город
-                                если город начинается с "буквы"
-                                    <...>
-                    иначе
-                        Вы выиграли
-                        конец игры
-        иначе
-            вывести сообщение "Не могу найти такой город в списке. Вы проиграли"
-            конец игры
-    '''
-
     if context.args:
         # старт игры
+        print(context.user_data)
         context.user_data['cities'] = playing_intensifies(context.user_data)
         cities = context.user_data['cities']
         print(context.args)
+        print(context.user_data)
         # ввести город игрока
         user_city = ' '.join(context.args).title()
         print(user_city)
+
+        # if context.user_data['start_letter'] in context.user_data:
+        #     try:
+        #         update.message.reply_text('Продолжаем')
+        #     except Exception as err:
+        #         print(err)
+        # else:
+        #     update.message.reply_text('Добро пожаловать в игру')
+
         if user_city in cities:
             # удалить город из списка
             cities.remove(user_city)
             print(len(cities))
             # найти последнюю букву в названии города
-            end_letter = get_letter(user_city)
+            context.user_data['end_letter'] = get_letter(user_city)
             # если город начинающийся с "буквы" в списке городов
             # bot_city = [city for city in cities_list if city.lower().startswith(end_letter.lower())]
             bot_city = []
             for city in cities:
-                if city[0].upper() == end_letter.upper():
+                if city[0].upper() == context.user_data['end_letter'].upper():
                     bot_city.append(city)
             bot_city = bot_city[0]
             print(bot_city)
@@ -79,11 +60,12 @@ def cities_game(update, context):
             cities.remove(bot_city)
             print(len(cities))
             # город игрока должен начинаться с "буквы"
-            start_letter = get_letter(bot_city)
+            context.user_data['start_letter'] = get_letter(bot_city)
             # вывести сообщение
             update.message.reply_text(f'Вы ввели город: <b>{user_city}</b>.\nМне надо выбрать город, начинающийся '
-                                      f'на букву <b><i>{end_letter.upper()}</i></b>.\nМой город: <b>{bot_city}</b>.\n'
-                                      f'Введите город, начинающийся с буквы <b><i>{start_letter.upper()}</i></b>.',
+                                      f'на букву <b><i>{context.user_data["end_letter"].upper()}</i></b>.\n'
+                                      f'Мой город: <b>{bot_city}</b>.\nВведите город, начинающийся с буквы '
+                                      f'<b><i>{context.user_data["start_letter"].upper()}</i></b>.',
                                       parse_mode="HTML")
         # иначе
         else:
