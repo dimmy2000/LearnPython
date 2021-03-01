@@ -3,7 +3,7 @@ from emoji import emojize
 import logging
 from random import randint, choice
 from settings import API_KEY, PROXY_URL, PROXY_USERNAME, PROXY_PASSWORD, USER_EMOJI
-from telegram import  ReplyKeyboardMarkup
+from telegram import  ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
 
 logging.basicConfig(filename='bot.log', format='%(asctime)s %(message)s',
@@ -21,14 +21,11 @@ def greet_user(update, context):
     chat_id = update.effective_chat.id
     context.bot.send_photo(chat_id=chat_id, photo=open('images/Scream.jpg', 'rb'))
     context.user_data['emoji'] = get_smile(context.user_data)
-    cat_keyboard = ReplyKeyboardMarkup(
-        keyboard=[['Прислать котика']],
-        resize_keyboard=True
-    )
+    start_keyboard = main_keyboard()
     update.message.reply_text(
         f'Привет, пользователь! {context.user_data["emoji"]} Ты вызвал команду /start\n'
         f'Ну и {update.message.from_user.first_name} же ты. Восхитительно!',
-        reply_markup=cat_keyboard
+        reply_markup=start_keyboard
     )
 
 
@@ -77,7 +74,7 @@ def send_cat_picture(update, context):
     cat_photos_list = glob('images/cat*.jp*g')
     cat_pic_filename = choice(cat_photos_list)
     chat_id = update.effective_chat.id
-    context.bot.send_photo(chat_id=chat_id, photo=open(cat_pic_filename, 'rb'))
+    context.bot.send_photo(chat_id=chat_id, photo=open(cat_pic_filename, 'rb'), reply_markup=main_keyboard())
 
 def get_smile(user_data):
     # Функция, которая возвращает случайный смайлик из списка
@@ -85,6 +82,20 @@ def get_smile(user_data):
         smile = choice(USER_EMOJI)
         return emojize(smile, use_aliases=True)
     return user_data['emoji']
+
+
+def main_keyboard():
+    return  ReplyKeyboardMarkup(keyboard=[['Прислать котика', KeyboardButton('Мои координаты', request_location=True)]],
+                                resize_keyboard=True)
+
+
+def user_coordinates(update, context):
+    context.user_data['emoji'] = get_smile(context.user_data)
+    coords = update.message.location
+    update.message.reply_text(
+        f"Ваши координаты {coords} {context.user_data['emoji']}!",
+        reply_markup=main_keyboard()
+    )
 
 
 def main():
@@ -96,6 +107,7 @@ def main():
     dp.add_handler(CommandHandler("cat", send_cat_picture))
     dp.add_handler(MessageHandler(Filters.regex('^(Прислать котика)$'), send_cat_picture))
     dp.add_handler(CommandHandler("guess", guess_number))
+    dp.add_handler(MessageHandler(Filters.location, user_coordinates))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
 
     logging.info("Бот стартовал")
