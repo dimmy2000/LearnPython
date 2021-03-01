@@ -22,7 +22,7 @@ def greet_user(update, context):
     context.bot.send_photo(chat_id=chat_id, photo=open('images/Scream.jpg', 'rb'))
     context.user_data['emoji'] = get_smile(context.user_data)
     cat_keyboard = ReplyKeyboardMarkup(
-        keyboard=[['/cat']],
+        keyboard=[['Прислать котика']],
         resize_keyboard=True
     )
     update.message.reply_text(
@@ -94,6 +94,7 @@ def main():
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler("start", greet_user))
     dp.add_handler(CommandHandler("cat", send_cat_picture))
+    dp.add_handler(MessageHandler(Filters.regex('^(Прислать котика)$'), send_cat_picture))
     dp.add_handler(CommandHandler("guess", guess_number))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
 
