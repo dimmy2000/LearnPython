@@ -5,7 +5,8 @@ from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
 
 from settings import API_KEY, PROXY_URL, PROXY_USERNAME, PROXY_PASSWORD
 
-logging.basicConfig(filename='bot.log', level=logging.INFO)
+logging.basicConfig(filename='bot.log', format='%(asctime)s - %(threadName)s - %(name)s - %(levelname)s - %(message)s',
+                    datefmt='%d-%m-%Y %H:%M:%S', level=logging.INFO)
 
 # Настройки прокси
 PROXY = {'proxy_url': PROXY_URL,
