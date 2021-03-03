@@ -1,6 +1,8 @@
 from glob import glob
 from random import choice
+from telegram import ReplyKeyboardRemove
 from utils import get_smile, play_random_numbers, main_keyboard
+
 
 def greet_user(update, context):
     # Функция для приветствия пользователя
@@ -23,15 +25,14 @@ def talk_to_me(update, context):
     user_text = update.message.text
     print(user_text)
     update.message.reply_text(
-        f'Отличная работа, {username} {context.user_data["emoji"]}! Ты написал: {user_text}'
+        f'Отличная работа, {username} {context.user_data["emoji"]}! Ты написал: {user_text}',
+        reply_markup=ReplyKeyboardRemove
     )
 
 
 def guess_number(update, context):
-    '''
-    Игра "Угадай число": пользователь выбирает число, бот выбирает случайное число - победа достается тому, у кого
-    больше величина.
-    '''
+    # Игра "Угадай число": пользователь выбирает число, бот выбирает случайное число - победа достается тому, у кого
+    # больше величина.
     print(context.args)
     if context.args:
         try:

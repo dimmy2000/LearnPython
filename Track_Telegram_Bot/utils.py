@@ -1,7 +1,7 @@
 from emoji import emojize
 from random import randint, choice
 from settings import USER_EMOJI
-from telegram import  ReplyKeyboardMarkup, KeyboardButton
+from telegram import ReplyKeyboardMarkup, KeyboardButton
 
 
 def get_smile(user_data):
@@ -25,5 +25,5 @@ def play_random_numbers(user_number):
 
 
 def main_keyboard():
-    return  ReplyKeyboardMarkup(keyboard=[['Прислать котика', KeyboardButton('Мои координаты', request_location=True)]],
-                                resize_keyboard=True)
+    return ReplyKeyboardMarkup(keyboard=[['Прислать котика', KeyboardButton('Мои координаты', request_location=True)]],
+                               resize_keyboard=True)
