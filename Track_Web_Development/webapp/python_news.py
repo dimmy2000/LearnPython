@@ -1,5 +1,7 @@
-from bs4 import BeautifulSoup
 import requests
+
+from bs4 import BeautifulSoup
+from flask import current_app
 
 def get_html(url):
     try:
@@ -12,7 +14,7 @@ def get_html(url):
 
 
 def get_python_news():
-    html = get_html('https://www.python.org/blogs/')
+    html = get_html(current_app.config["PYTHON_NEWS_URL"])
     if html:
         soup = BeautifulSoup(html, 'html.parser')
         all_news = soup.find('ul', class_='list-recent-posts').find_all('li')
