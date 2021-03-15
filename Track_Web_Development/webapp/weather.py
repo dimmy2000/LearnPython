@@ -1,5 +1,5 @@
 import requests
-from settings import API_KEY
+from config import API_KEY
 
 def weather_by_city(city_name):
     weather_url = 'http://api.worldweatheronline.com/premium/v1/weather.ashx'
