@@ -28,7 +28,7 @@ def get_python_news():
             published = news.find('time')['datetime']
             try:
                 published = datetime.strptime(published, '%Y-%m-%d')
-            except(ValueError):
+            except ValueError:
                 published = datetime.now()
             save_news(title, url, published)
 
