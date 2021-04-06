@@ -27,5 +27,5 @@ def weather_by_city(city_name):
 
 
 if __name__ == '__main__':
-    weather = weather_by_city(current_app.config['WEATHER_DEFAULT_CITY'])
-    print(weather)
+    weather_forecast = weather_by_city(current_app.config['WEATHER_DEFAULT_CITY'])
+    print(weather_forecast)

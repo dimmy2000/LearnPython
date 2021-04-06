@@ -6,7 +6,9 @@ from webapp.news.models import News
 
 def get_html(url):
     headers = {
-        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) "
+                      "AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/89.0.4389.90 Safari/537.36",
     }
     try:
         result = requests.get(url, headers=headers)

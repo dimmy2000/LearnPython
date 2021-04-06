@@ -1,6 +1,6 @@
-from datetime import datetime, timedelta
 import locale
 import platform
+from datetime import datetime, timedelta
 
 from bs4 import BeautifulSoup
 
@@ -15,7 +15,8 @@ else:
 
 
 def get_habr_snippets():
-    html = get_html("https://habr.com/ru/search/?target_type=posts&q=python&order_by=date")
+    html = get_html(
+        "https://habr.com/ru/search/?target_type=posts&q=python&order_by=date")
     if html:
         soup = BeautifulSoup(html, 'html.parser')
         all_news = soup.find('ul', class_='content-list_posts').find_all(
