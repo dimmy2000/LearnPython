@@ -48,6 +48,7 @@ def top_average_salary_by_city(num_rows):
     for city, salary in top_avg_salary:
         print(f"Город: {city}, средняя з/п: {salary:.0f}")
 
+
 if __name__ == '__main__':
     top_salary(10)
     salary_by_city('Новороссийск')

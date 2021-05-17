@@ -19,5 +19,6 @@ class Salary(Base):
     def __repr__(self):
         return f"Salary {self.id}, {self.name}, {self.company}"
 
+
 if __name__ == "__main__":
     Base.metadata.create_all(bind=engine)
