@@ -3,9 +3,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-DB_NAME = "me_db"
+DB_NAME = "postgres"
 
-engine = create_engine(f'postgres://{LOGIN}:{PASSWORD}@{HOST}:{PORT}/{DB_NAME}')
+engine = create_engine(f'postgresql://{LOGIN}:{PASSWORD}@{HOST}:{PORT}/{DB_NAME}')
 db_session = scoped_session(sessionmaker(bind=engine))
 
 Base = declarative_base()

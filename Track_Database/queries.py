@@ -1,58 +1,53 @@
+import time
+
 from db import db_session
-from models import Salary
-from sqlalchemy import func, desc
+from models import Company, Employee
 
 
-def top_salary(num_rows):
-    top_salary = Salary.query.order_by(Salary.salary.desc()).limit(num_rows)
-
-    for s in top_salary:
-        print(f'З/п: {s.salary}')
-
-
-def salary_by_city(city_name):
-    top_salary = Salary.query.filter(Salary.city == city_name).order_by(Salary.salary.desc())
-
-    print(city_name)
-    for s in top_salary:
-        print(f'З/п: {s.salary}')
+def employees_by_company(company_name):
+    company = Company.query.filter(Company.name == company_name).first()
+    employee_list = []
+    if company:
+        for employee in Employee.query.filter(
+                Employee.company_id == company.id):
+            employee_list.append(
+                f"{company.name} - сотрудник {employee.name}")
+    return employee_list
 
 
-def top_salary_by_email_domain(domain, num_rows):
-    top_salary = Salary.query.filter(Salary.email.like(f"%{domain}")) \
-        .order_by(Salary.salary.desc()).limit(num_rows)
-
-    print(domain)
-    for s in top_salary:
-        print(f'З/п {s.salary}')
-
-
-def average_salary():
-    avg_salary = db_session.query(func.avg(Salary.salary)).scalar()
-
-    print(f"Средняя зарплата {avg_salary:.2f}")
+def employees_by_company_joined(company_name):
+    employee_list = []
+    query = db_session.query(Employee, Company).join(
+        Company, Employee.company_id == Company.id
+    ).filter(Company.name == company_name)
+    for employee, company in query:
+        employee_list.append(
+            f"{company.name} - сотрудник {employee.name}")
+    return employee_list
 
 
-def count_distinct_cities():
-    count_cities = db_session.query(Salary.city).group_by(Salary.city).count()
-
-    print(f"В базе {count_cities} городов")
-
-
-def top_average_salary_by_city(num_rows):
-    top_avg_salary = db_session.query(
-        Salary.city,
-        func.avg(Salary.salary).label('avg_salary')
-    ).group_by(Salary.city).order_by(desc('avg_salary')).limit(num_rows)
-
-    for city, salary in top_avg_salary:
-        print(f"Город: {city}, средняя з/п: {salary:.0f}")
+def employee_by_company_relation(company_name):
+    company = Company.query.filter(Company.name == company_name).first()
+    employee_list = []
+    if company:
+        for employee in company.employees:
+            employee_list.append(
+                f"{company.name} - сотрудник {employee.name}")
+    return employee_list
 
 
 if __name__ == '__main__':
-    top_salary(10)
-    salary_by_city('Новороссийск')
-    top_salary_by_email_domain('yandex.ru', 5)
-    average_salary()
-    count_distinct_cities()
-    top_average_salary_by_city(10)
+    start = time.perf_counter()
+    for _ in range(100):
+        employees_by_company("АвтоВАЗ")
+    print(f'employees_by_company {time.perf_counter() - start}')
+
+    start = time.perf_counter()
+    for _ in range(100):
+        employees_by_company_joined("АвтоВАЗ")
+    print(f'employees_by_company_joined {time.perf_counter() - start}')
+
+    start = time.perf_counter()
+    for _ in range(100):
+        employee_by_company_relation("АвтоВАЗ")
+    print(f'employee_by_company_relation {time.perf_counter() - start}')
