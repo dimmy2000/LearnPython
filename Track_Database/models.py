@@ -10,6 +10,7 @@ class Company(Base):
     city = Column(String)
     address = Column(String)
     phone = Column(String)
+    year_founded = Column(Integer)
     employees = relationship("Employee")
     projects = relationship("Project")
 
@@ -23,7 +24,7 @@ class Employee(Base):
     id = Column(Integer, primary_key=True)
     company_id = Column(Integer, ForeignKey(Company.id), index=True, nullable=False)
     name = Column(String)
-    job = Column(String)
+    job = Column(String, index=True)
     phone = Column(String)
     email = Column(String)
     date_of_birth = Column(Date)
@@ -42,6 +43,7 @@ class Payment(Base):
     employee_id = Column(Integer, ForeignKey(Employee.id), index=True, nullable=False)
     payment_date = Column(Date)
     amount = Column(Integer)
+    currency = Column(String, nullable=False)
     employee = relationship("Employee")
 
     def __repr__(self):
