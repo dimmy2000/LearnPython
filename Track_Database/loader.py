@@ -1,88 +1,74 @@
 import csv
+from datetime import datetime
+
+from sqlalchemy.exc import SQLAlchemyError
 
 from db import db_session
-from models import Company, Employee, Payment
+from models import Project, ProjectEmployee
+
+
+def process_row(row):
+    row = prepare_data(row)
+    project = get_or_create_project(row['project_name'], row['company_id'])
+    save_project_employee(project, row)
+
+
+def prepare_data(row):
+    row['company_id'] = int(row['company_id'])
+    row['employee_id'] = int(row['employee_id'])
+    row['date_start'] = datetime.strptime(row['date_start'], '%Y-%m-%d')
+    row['date_end'] = datetime.strptime(row['date_end'], '%Y-%m-%d')
+    return row
+
+
+def get_or_create_project(name, company_id):
+    project = Project.query.filter(
+        Project.name == name, Project.company_id == company_id
+    ).first()
+    if not project:
+        project = Project(name=name, company_id=company_id)
+        db_session.add(project)
+        try:
+            db_session.commit()
+        except SQLAlchemyError:
+            db_session.rollback()
+            raise
+    return project
+
+
+def save_project_employee(project, row):
+    project_employee = ProjectEmployee(
+        employee_id=row['employee_id'],
+        project_id=project.id,
+        date_start=row['date_start'],
+        date_end=row['date_end'],
+    )
+    db_session.add(project_employee)
+    try:
+        db_session.commit()
+    except SQLAlchemyError:
+        db_session.rollback()
+        raise
+
+
+def print_error(row_num, error_text, exception):
+    print(f"Ошибка на строке {row_num}")
+    print(error_text.format(exception))
+    print('-' * 80)
 
 
 def read_csv(filename):
     with open(filename, 'r', encoding='utf-8') as f:
-        fields = [
-            'company',  'city', 'address', 'phone_company', 'name', 'job',
-            'phone_person', 'email', 'date_of_birth', 'payment_date', 'amount']
+        fields = ['project_name', 'company_id', 'employee_id', 'date_start', 'date_end']
         reader = csv.DictReader(f, fields, delimiter=';')
-        payments_data = []
-        for row in reader:
-            payments_data.append(row)
-        return payments_data
-
-
-def save_companies(all_data):
-    processed = []
-    companies_unique = []
-    for row in all_data:
-        if row['company'] not in processed:
-            company = {
-                'name': row['company'], 'city': row['city'],
-                'address': row['address'], 'phone': row['phone_company'],
-            }
-            companies_unique.append(company)
-            processed.append(company['name'])
-    db_session.bulk_insert_mappings(Company, companies_unique,
-                                    return_defaults=True)
-    db_session.commit()
-    return companies_unique
-
-
-def get_company_id(company_name, companies_unique):
-    for row in companies_unique:
-        if row['name'] == company_name:
-            return row['id']
-    return None
-
-
-def save_employees(all_data, companies):
-    processed = []
-    employees_unique = []
-    for row in all_data:
-        if row['phone_person'] not in processed:
-            employee = dict(
-                name=row['name'],
-                job=row['job'],
-                email=row['email'],
-                phone=row['phone_person'],
-                date_of_birth=row['date_of_birth'],
-            )
-            employee['company_id'] = get_company_id(row['company'], companies)
-            employees_unique.append(employee)
-            processed.append(row['phone_person'])
-    db_session.bulk_insert_mappings(Employee, employees_unique, return_defaults=True)
-    db_session.commit()
-    return employees_unique
-
-
-def get_employee_id(phone, employees_unique):
-    for row in employees_unique:
-        if row['phone'] == phone:
-            return row['id']
-    return None
-
-
-def save_payments(all_data, employees):
-    payments = []
-    for row in all_data:
-        payment = {
-            'payment_date': row['payment_date'],
-            'amount': row['amount'],
-            'employee_id': get_employee_id(row['phone_person'], employees)
-        }
-        payments.append(payment)
-    db_session.bulk_insert_mappings(Payment, payments)
-    db_session.commit()
-    return payments
+        for row_num, row in enumerate(reader, start=1):
+            try:
+                process_row(row)
+            except SQLAlchemyError as e:
+                print_error(row_num, "Ошибка целостности данных: {}", e)
+            except (ValueError, TypeError) as e:
+                print_error(row_num, "Неправильный формат данных: {}", e)
 
 
 if __name__ == '__main__':
-    data = read_csv('salary.csv')
-    companies = save_companies(data)
-    employees = save_employees(data, companies)
-    payments = save_payments(data, employees)
+    read_csv('projects.csv')

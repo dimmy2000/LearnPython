@@ -1,53 +1,48 @@
 import time
+from sqlalchemy.sql import func
 
 from db import db_session
-from models import Company, Employee
+from models import Company, Employee, Project, ProjectEmployee
 
 
-def employees_by_company(company_name):
-    company = Company.query.filter(Company.name == company_name).first()
-    employee_list = []
-    if company:
-        for employee in Employee.query.filter(
-                Employee.company_id == company.id):
-            employee_list.append(
-                f"{company.name} - сотрудник {employee.name}")
-    return employee_list
-
-
-def employees_by_company_joined(company_name):
-    employee_list = []
-    query = db_session.query(Employee, Company).join(
-        Company, Employee.company_id == Company.id
+def company_projects_employees(company_name):
+    query = Project.query.join(
+        Project.company, Project.employees
     ).filter(Company.name == company_name)
-    for employee, company in query:
-        employee_list.append(
-            f"{company.name} - сотрудник {employee.name}")
-    return employee_list
+
+    for project in query:
+        print('-' * 80)
+        print(project.name)
+        for employee in project.employees:
+            delta = (employee.date_end - employee.date_start).days
+            print(f"{employee.employee.name} -- {delta}")
 
 
-def employee_by_company_relation(company_name):
-    company = Company.query.filter(Company.name == company_name).first()
-    employee_list = []
-    if company:
-        for employee in company.employees:
-            employee_list.append(
-                f"{company.name} - сотрудник {employee.name}")
-    return employee_list
+def projects_time_total(company_name):
+    query = db_session.query(
+        Project.name, func.sum(ProjectEmployee.date_end - ProjectEmployee.date_start)
+    ).join(
+        Project.company, Project.employees
+    ).filter(Company.name == company_name).group_by(Project.name)
+
+    for project_name, delta in query:
+        print(f'{project_name} -- {delta}')
+
+
+def project_employees_time_total(company_name):
+    query = db_session.query(
+        Project.name,
+        Employee.name,
+        func.sum(ProjectEmployee.date_end - ProjectEmployee.date_start)
+    ).join(
+        Project.company, Project.employees, ProjectEmployee.employee
+    ).filter(Company.name == company_name).group_by(Project.name, Employee.name)
+
+    for project_name, employee_name, delta in query:
+        print(f'{project_name} -- {employee_name} -- {delta}')
 
 
 if __name__ == '__main__':
-    start = time.perf_counter()
-    for _ in range(100):
-        employees_by_company("АвтоВАЗ")
-    print(f'employees_by_company {time.perf_counter() - start}')
-
-    start = time.perf_counter()
-    for _ in range(100):
-        employees_by_company_joined("АвтоВАЗ")
-    print(f'employees_by_company_joined {time.perf_counter() - start}')
-
-    start = time.perf_counter()
-    for _ in range(100):
-        employee_by_company_relation("АвтоВАЗ")
-    print(f'employee_by_company_relation {time.perf_counter() - start}')
+    # company_projects_employees("Вайлдберриз")
+    # projects_time_total("Вайлдберриз")
+    project_employees_time_total("Вайлдберриз")
