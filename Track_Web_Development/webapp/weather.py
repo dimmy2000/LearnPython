@@ -2,6 +2,7 @@ from flask import current_app
 
 import requests
 
+
 def weather_by_city(city_name):
     weather_url = current_app.config['WEATHER_URL']
     params = {'key': current_app.config['WEATHER_API_KEY'],
@@ -9,7 +10,7 @@ def weather_by_city(city_name):
               'format': 'json',
               'num_of_days': 1,
               'lang': 'ru'
-            }
+              }
     try:
         result = requests.get(weather_url, params=params)
         weather = result.json()
@@ -24,6 +25,7 @@ def weather_by_city(city_name):
         return False
     return False
 
+
 if __name__ == '__main__':
-    weather = weather_by_city(current_app.config['WEATHER_DEFAULT_CITY'])
-    print(weather)
+    weather_forecast = weather_by_city(current_app.config['WEATHER_DEFAULT_CITY'])
+    print(weather_forecast)
